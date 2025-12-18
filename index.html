@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Experiencia visual inmersiva - Constelaciones en movimiento">
+    <title>Cosmos Fluido - Animación Infinita</title>
+	<style>
+		/* ============================================
+		   RESET Y CONFIGURACIÓN BASE
+		   ============================================ */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		:root {
+			/* Paleta de colores base */
+			--color-primary: #667EFF;
+			--color-secondary: #FF6B9D;
+			--color-tertiary: #4ECDC4;
+			--color-accent: #FFA07A;
+			--color-deep: #2C3E87;
+			
+			/* Colores de UI */
+			--ui-color: rgba(255, 255, 255, 0.8);
+			--ui-color-bg: rgba(0, 0, 0, 0.3);
+			
+			/* Timing */
+			--transition-smooth: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		/* Modo oscuro/claro según preferencia del sistema */
+		@media (prefers-color-scheme: light) {
+			:root {
+				--ui-color: rgba(0, 0, 0, 0.7);
+				--ui-color-bg: rgba(255, 255, 255, 0.2);
+			}
+		}
+
+		html, body {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+			background: #0a0e27;
+			color: var(--ui-color);
+		}
+
+		/* ============================================
+		   CONTENEDOR PRINCIPAL
+		   ============================================ */
+		.animation-container {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+			background: radial-gradient(ellipse at center, #1a1f3a 0%, #0a0e27 100%);
+		}
+
+		/* ============================================
+		   CANVAS PRINCIPAL
+		   ============================================ */
+		#main-canvas {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			z-index: 2;
+			display: block;
+		}
+
+		/* ============================================
+		   CAPAS DE PROFUNDIDAD Y ANIMACIONES
+		   ============================================ */
+		.animation-layers {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			z-index: 1;
+			pointer-events: none;
+		}
+
+		.layer {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			opacity: 0.4;
+			mix-blend-mode: screen;
+			animation-iteration-count: infinite;
+			animation-timing-function: ease-in-out;
+		}
+
+		.layer-1 {
+			background: radial-gradient(circle at 20% 30%, var(--color-primary) 0%, transparent 50%);
+			animation: float-1 120s infinite;
+		}
+
+		.layer-2 {
+			background: radial-gradient(circle at 80% 70%, var(--color-secondary) 0%, transparent 50%);
+			animation: float-2 150s infinite;
+		}
+
+		.layer-3 {
+			background: radial-gradient(circle at 50% 50%, var(--color-tertiary) 0%, transparent 50%);
+			animation: float-3 180s infinite;
+		}
+
+		@keyframes float-1 {
+			0%, 100% {
+				transform: translate(0, 0) scale(1);
+				opacity: 0.3;
+			}
+			25% {
+				transform: translate(10%, -15%) scale(1.1);
+				opacity: 0.5;
+			}
+			50% {
+				transform: translate(-5%, 10%) scale(0.9);
+				opacity: 0.4;
+			}
+			75% {
+				transform: translate(15%, 5%) scale(1.05);
+				opacity: 0.45;
+			}
+		}
+
+		@keyframes float-2 {
+			0%, 100% {
+				transform: translate(0, 0) scale(1);
+				opacity: 0.35;
+			}
+			33% {
+				transform: translate(-12%, 8%) scale(1.15);
+				opacity: 0.5;
+			}
+			66% {
+				transform: translate(8%, -10%) scale(0.95);
+				opacity: 0.4;
+			}
+		}
+
+		@keyframes float-3 {
+			0%, 100% {
+				transform: translate(0, 0) rotate(0deg) scale(1);
+				opacity: 0.3;
+			}
+			20% {
+				transform: translate(5%, 12%) rotate(5deg) scale(1.1);
+				opacity: 0.45;
+			}
+			40% {
+				transform: translate(-8%, -5%) rotate(-3deg) scale(0.9);
+				opacity: 0.35;
+			}
+			60% {
+				transform: translate(12%, -8%) rotate(7deg) scale(1.05);
+				opacity: 0.5;
+			}
+			80% {
+				transform: translate(-5%, 10%) rotate(-5deg) scale(0.95);
+				opacity: 0.4;
+			}
+		}
+
+		/* ============================================
+		   OVERLAY DE BRILLO
+		   ============================================ */
+		.glow-overlay {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			z-index: 3;
+			pointer-events: none;
+			background: radial-gradient(
+				ellipse at center,
+				transparent 30%,
+				rgba(102, 126, 255, 0.05) 70%,
+				rgba(102, 126, 255, 0.1) 100%
+			);
+			animation: pulse-glow 15s ease-in-out infinite;
+		}
+
+		@keyframes pulse-glow {
+			0%, 100% {
+				opacity: 1;
+			}
+			50% {
+				opacity: 0.7;
+			}
+		}
+
+		/* ============================================
+		   BRANDING
+		   ============================================ */
+		.branding {
+			position: absolute;
+			top: clamp(20px, 5vh, 40px);
+			left: clamp(20px, 5vw, 40px);
+			z-index: 10;
+			opacity: 0;
+			animation: fadeIn 2s ease-out 1s forwards;
+		}
+
+		.logo {
+			color: var(--ui-color);
+			filter: drop-shadow(0 0 10px rgba(102, 126, 255, 0.3));
+			animation: logo-pulse 8s ease-in-out infinite;
+		}
+
+		@keyframes logo-pulse {
+			0%, 100% {
+				opacity: 0.6;
+				transform: scale(1);
+			}
+			50% {
+				opacity: 0.9;
+				transform: scale(1.05);
+			}
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(-10px);
+			}
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		/* ============================================
+		   INDICADOR DE PROGRESO
+		   ============================================ */
+		.progress-indicator {
+			position: absolute;
+			bottom: clamp(20px, 5vh, 40px);
+			right: clamp(20px, 5vw, 40px);
+			z-index: 10;
+			opacity: 0;
+			animation: fadeIn 2s ease-out 1.5s forwards;
+		}
+
+		.progress-ring svg {
+			color: var(--ui-color);
+			filter: drop-shadow(0 0 8px rgba(78, 205, 196, 0.3));
+		}
+
+		#progress-circle {
+			transition: stroke-dashoffset 0.5s ease;
+		}
+
+		/* ============================================
+		   CONTROL DE MOVIMIENTO (ACCESIBILIDAD)
+		   ============================================ */
+		.motion-control {
+			position: absolute;
+			bottom: clamp(20px, 5vh, 40px);
+			left: clamp(20px, 5vw, 40px);
+			z-index: 10;
+			background: var(--ui-color-bg);
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			border-radius: 50%;
+			width: 44px;
+			height: 44px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			color: var(--ui-color);
+			transition: all var(--transition-smooth);
+			opacity: 0;
+			animation: fadeIn 2s ease-out 2s forwards;
+		}
+
+		.motion-control:hover {
+			background: rgba(102, 126, 255, 0.2);
+			border-color: rgba(102, 126, 255, 0.5);
+			transform: scale(1.1);
+		}
+
+		.motion-control:focus {
+			outline: 2px solid var(--color-primary);
+			outline-offset: 2px;
+		}
+
+		.motion-control:active {
+			transform: scale(0.95);
+		}
+
+		/* ============================================
+		   PLACEHOLDER DE CARGA
+		   ============================================ */
+		.loading-placeholder {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			background: #0a0e27;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			z-index: 100;
+			transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+		}
+
+		.loading-placeholder.hidden {
+			opacity: 0;
+			visibility: hidden;
+			pointer-events: none;
+		}
+
+		.loading-spinner {
+			width: 50px;
+			height: 50px;
+			border: 3px solid rgba(102, 126, 255, 0.2);
+			border-top-color: var(--color-primary);
+			border-radius: 50%;
+			animation: spin 1s linear infinite;
+		}
+
+		@keyframes spin {
+			to {
+				transform: rotate(360deg);
+			}
+		}
+
+		.loading-placeholder p {
+			margin-top: 20px;
+			font-size: 14px;
+			color: var(--ui-color);
+			opacity: 0.7;
+			letter-spacing: 1px;
+		}
+
+		/* ============================================
+		   ACCESIBILIDAD - MOVIMIENTO REDUCIDO
+		   ============================================ */
+		@media (prefers-reduced-motion: reduce) {
+			.layer-1,
+			.layer-2,
+			.layer-3,
+			.glow-overlay,
+			.logo {
+				animation: none !important;
+			}
+			
+			.animation-container {
+				background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%);
+			}
+			
+			.layer {
+				opacity: 0.2;
+				transform: none !important;
+			}
+		}
+
+		/* ============================================
+		   RESPONSIVE
+		   ============================================ */
+		@media (max-width: 768px) {
+			.branding {
+				top: 15px;
+				left: 15px;
+			}
+			
+			.logo {
+				width: 45px;
+				height: 45px;
+			}
+			
+			.progress-indicator {
+				bottom: 15px;
+				right: 15px;
+			}
+			
+			.progress-ring svg {
+				width: 32px;
+				height: 32px;
+			}
+			
+			.motion-control {
+				bottom: 15px;
+				left: 15px;
+				width: 40px;
+				height: 40px;
+			}
+		}
+
+		@media (orientation: landscape) and (max-height: 500px) {
+			.branding,
+			.progress-indicator,
+			.motion-control {
+				transform: scale(0.8);
+			}
+		}
+
+		/* Safe areas para dispositivos con notch */
+		@supports (padding: env(safe-area-inset-top)) {
+			.branding {
+				top: calc(clamp(20px, 5vh, 40px) + env(safe-area-inset-top));
+				left: calc(clamp(20px, 5vw, 40px) + env(safe-area-inset-left));
+			}
+			
+			.progress-indicator {
+				bottom: calc(clamp(20px, 5vh, 40px) + env(safe-area-inset-bottom));
+				right: calc(clamp(20px, 5vw, 40px) + env(safe-area-inset-right));
+			}
+			
+			.motion-control {
+				bottom: calc(clamp(20px, 5vh, 40px) + env(safe-area-inset-bottom));
+				left: calc(clamp(20px, 5vw, 40px) + env(safe-area-inset-left));
+			}
+		}
+
+		/* ============================================
+		   OPTIMIZACIÓN DE RENDIMIENTO
+		   ============================================ */
+		.animation-container,
+		.layer,
+		#main-canvas {
+			will-change: transform;
+		}
+
+		/* Hint al navegador para acelerar con GPU */
+		.layer,
+		.glow-overlay {
+			transform: translateZ(0);
+			backface-visibility: hidden;
+		}
+
+
+	</style>
+	
+</head>
+<body>
+    <!-- Contenedor principal de la animación -->
+    <div class="animation-container" role="img" aria-label="Animación abstracta de constelaciones fluidas en movimiento continuo">
+        <!-- Canvas principal para las partículas -->
+        <canvas id="main-canvas"></canvas>
+        
+        <!-- Capas de profundidad con gradientes dinámicos -->
+        <div class="animation-layers">
+            <div class="layer layer-1"></div>
+            <div class="layer layer-2"></div>
+            <div class="layer layer-3"></div>
+        </div>
+        
+        <!-- Overlay de brillo -->
+        <div class="glow-overlay"></div>
+        
+        <!-- Branding discreto -->
+        <div class="branding">
+            <svg width="60" height="60" viewBox="0 0 60 60" class="logo">
+                <circle cx="30" cy="30" r="28" stroke="currentColor" stroke-width="1" fill="none" opacity="0.6"/>
+                <circle cx="30" cy="30" r="3" fill="currentColor" opacity="0.8"/>
+                <circle cx="20" cy="25" r="2" fill="currentColor" opacity="0.6"/>
+                <circle cx="40" cy="35" r="2" fill="currentColor" opacity="0.6"/>
+                <line x1="20" y1="25" x2="30" y2="30" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+                <line x1="40" y1="35" x2="30" y2="30" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+            </svg>
+        </div>
+        
+        <!-- Indicador de progreso sutil -->
+        <div class="progress-indicator">
+            <div class="progress-ring">
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                    <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1" fill="none" opacity="0.2"/>
+                    <circle id="progress-circle" cx="20" cy="20" r="18" stroke="currentColor" 
+                            stroke-width="1" fill="none" opacity="0.6"
+                            stroke-dasharray="113.097" stroke-dashoffset="113.097"
+                            transform="rotate(-90 20 20)"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Control de movimiento reducido (accesibilidad) -->
+        <button id="motion-toggle" class="motion-control" aria-label="Pausar/reanudar animación">
+            <svg width="20" height="20" viewBox="0 0 20 20">
+                <rect id="pause-icon" x="5" y="4" width="3" height="12" fill="currentColor"/>
+                <rect id="pause-icon-2" x="12" y="4" width="3" height="12" fill="currentColor"/>
+                <polygon id="play-icon" points="6,4 6,16 16,10" fill="currentColor" style="display:none"/>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Placeholder de carga -->
+    <div id="loading-placeholder" class="loading-placeholder">
+        <div class="loading-spinner"></div>
+        <p>Iniciando experiencia...</p>
+    </div>
+    
+    <script>
+		/**
+		 * COSMOS FLUIDO - ANIMACIÓN INFINITA
+		 * Sistema de partículas con conexiones dinámicas y evolución cromática
+		 * Optimizado para 60fps con degradación adaptativa
+		 */
+
+		// ============================================
+		// CONFIGURACIÓN Y CONSTANTES
+		// ============================================
+
+		const CONFIG = {
+			// Partículas
+			particleCount: window.innerWidth < 768 ? 80 : 150,
+			particleSize: { min: 1, max: 4 },
+			particleSpeed: { min: 0.2, max: 0.8 },
+			connectionDistance: window.innerWidth < 768 ? 100 : 150,
+			
+			// Colores (paleta evolutiva)
+			colors: [
+				{ r: 102, g: 126, b: 255 }, // Azul primario
+				{ r: 255, g: 107, b: 157 }, // Rosa secundario
+				{ r: 78, g: 205, b: 196 },  // Turquesa terciario
+				{ r: 255, g: 160, b: 122 }, // Coral acento
+				{ r: 138, g: 123, b: 255 }  // Púrpura
+			],
+			
+			// Timing
+			cycleDuration: 120000, // 120 segundos
+			colorTransitionSpeed: 0.001,
+			
+			// Performance
+			targetFPS: 60,
+			performanceCheckInterval: 2000,
+			minFPS: 30
+		};
+
+		// ============================================
+		// ESTADO GLOBAL
+		// ============================================
+
+		const STATE = {
+			canvas: null,
+			ctx: null,
+			particles: [],
+			animationId: null,
+			startTime: Date.now(),
+			isRunning: true,
+			isPaused: false,
+			prefersReducedMotion: false,
+			fps: 60,
+			lastFrameTime: Date.now(),
+			frameCount: 0,
+			lastFPSCheck: Date.now(),
+			currentColorPhase: 0,
+			mouse: { x: null, y: null }
+		};
+
+		// ============================================
+		// CLASE PARTÍCULA
+		// ============================================
+
+		class Particle {
+			constructor(canvas) {
+				this.reset(canvas);
+				this.age = Math.random() * 1000;
+				this.baseSize = CONFIG.particleSize.min + 
+							   Math.random() * (CONFIG.particleSize.max - CONFIG.particleSize.min);
+				this.colorIndex = Math.floor(Math.random() * CONFIG.colors.length);
+				this.colorProgress = Math.random();
+				this.pulseOffset = Math.random() * Math.PI * 2;
+				this.depth = 0.3 + Math.random() * 0.7; // Para efecto parallax
+			}
+			
+			reset(canvas) {
+				const width = window.innerWidth;
+				const height = window.innerHeight;
+				
+				this.x = Math.random() * width;
+				this.y = Math.random() * height;
+				this.vx = (Math.random() - 0.5) * CONFIG.particleSpeed.max * 2;
+				this.vy = (Math.random() - 0.5) * CONFIG.particleSpeed.max * 2;
+				
+				// Añadir componente de flujo circular
+				const angle = Math.random() * Math.PI * 2;
+				const speed = CONFIG.particleSpeed.min + 
+							 Math.random() * (CONFIG.particleSpeed.max - CONFIG.particleSpeed.min);
+				this.flowVx = Math.cos(angle) * speed;
+				this.flowVy = Math.sin(angle) * speed;
+			}
+			
+			update(canvas, time, colorPhase) {
+				// Actualizar edad
+				this.age++;
+				
+				// Evolución del color
+				this.colorProgress += CONFIG.colorTransitionSpeed;
+				if (this.colorProgress >= 1) {
+					this.colorProgress = 0;
+					this.colorIndex = (this.colorIndex + 1) % CONFIG.colors.length;
+				}
+				
+				// Movimiento con flujo orgánico
+				const flowStrength = 0.02;
+				const noiseX = Math.sin(time * 0.0005 + this.x * 0.01) * flowStrength;
+				const noiseY = Math.cos(time * 0.0003 + this.y * 0.01) * flowStrength;
+				
+				this.vx += noiseX;
+				this.vy += noiseY;
+				
+				// Combinar con flujo circular
+				this.vx = this.vx * 0.95 + this.flowVx * 0.05;
+				this.vy = this.vy * 0.95 + this.flowVy * 0.05;
+				
+				// Limitar velocidad
+				const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+				if (speed > CONFIG.particleSpeed.max) {
+					this.vx = (this.vx / speed) * CONFIG.particleSpeed.max;
+					this.vy = (this.vy / speed) * CONFIG.particleSpeed.max;
+				}
+				
+				// Aplicar movimiento con profundidad
+				this.x += this.vx * this.depth;
+				this.y += this.vy * this.depth;
+				
+				// Wrap around (efecto infinito)
+				const width = window.innerWidth;
+				const height = window.innerHeight;
+				
+				if (this.x < 0) this.x = width;
+				if (this.x > width) this.x = 0;
+				if (this.y < 0) this.y = height;
+				if (this.y > height) this.y = 0;
+				
+				// Actualizar flujo circular gradualmente
+				const targetAngle = Math.atan2(height / 2 - this.y, width / 2 - this.x);
+				const perpAngle = targetAngle + Math.PI / 2;
+				this.flowVx += Math.cos(perpAngle) * 0.001;
+				this.flowVy += Math.sin(perpAngle) * 0.001;
+			}
+			
+			draw(ctx, time) {
+				// Calcular color interpolado
+				const c1 = CONFIG.colors[this.colorIndex];
+				const c2 = CONFIG.colors[(this.colorIndex + 1) % CONFIG.colors.length];
+				const t = this.colorProgress;
+				
+				const r = Math.floor(c1.r * (1 - t) + c2.r * t);
+				const g = Math.floor(c1.g * (1 - t) + c2.g * t);
+				const b = Math.floor(c1.b * (1 - t) + c2.b * t);
+				
+				// Pulso de brillo
+				const pulse = Math.sin(time * 0.002 + this.pulseOffset) * 0.3 + 0.7;
+				const alpha = 0.6 * pulse * this.depth;
+				
+				// Tamaño con pulso
+				const size = this.baseSize * (0.8 + pulse * 0.2) * this.depth;
+				
+				// Dibujar con glow
+				ctx.shadowBlur = 15 * this.depth;
+				ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+				
+				ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+				ctx.fill();
+				
+				// Núcleo brillante
+				ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.5})`;
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, size * 0.4, 0, Math.PI * 2);
+				ctx.fill();
+				
+				ctx.shadowBlur = 0;
+			}
+		}
+
+		// ============================================
+		// INICIALIZACIÓN
+		// ============================================
+
+		function init() {
+			// Detectar preferencia de movimiento reducido
+			STATE.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			
+			// Configurar canvas
+			STATE.canvas = document.getElementById('main-canvas');
+			STATE.ctx = STATE.canvas.getContext('2d', { alpha: false });
+			
+			// Ajustar resolución
+			resizeCanvas();
+			
+			// Crear partículas
+			createParticles();
+			
+			// Render inicial inmediato
+			drawInitialFrame();
+			
+			// Event listeners
+			window.addEventListener('resize', debounce(handleResize, 250));
+			window.addEventListener('visibilitychange', handleVisibilityChange);
+			
+			// Control de pausa/play
+			const motionToggle = document.getElementById('motion-toggle');
+			motionToggle.addEventListener('click', toggleAnimation);
+			
+			// Ocultar placeholder de carga e iniciar animación
+			setTimeout(() => {
+				document.getElementById('loading-placeholder').classList.add('hidden');
+				if (!STATE.prefersReducedMotion) {
+					startAnimation();
+				} else {
+					// Mostrar versión estática si prefiere movimiento reducido
+					drawStaticFrame();
+				}
+			}, 500);
+			
+			// Iniciar monitoreo de performance
+			if (!STATE.prefersReducedMotion) {
+				setInterval(checkPerformance, CONFIG.performanceCheckInterval);
+			}
+		}
+
+		function createParticles() {
+			STATE.particles = [];
+			const count = STATE.prefersReducedMotion ? 
+						  Math.floor(CONFIG.particleCount * 0.3) : 
+						  CONFIG.particleCount;
+			
+			for (let i = 0; i < count; i++) {
+				STATE.particles.push(new Particle(STATE.canvas));
+			}
+		}
+
+		function resizeCanvas() {
+			const dpr = window.devicePixelRatio || 1;
+			
+			// Obtener dimensiones actuales de la ventana
+			const newWidth = window.innerWidth * dpr;
+			const newHeight = window.innerHeight * dpr;
+			
+			// Solo actualizar si las dimensiones cambiaron
+			if (STATE.canvas.width !== newWidth || STATE.canvas.height !== newHeight) {
+				STATE.canvas.width = newWidth;
+				STATE.canvas.height = newHeight;
+				
+				// Establecer dimensiones visuales
+				STATE.canvas.style.width = window.innerWidth + 'px';
+				STATE.canvas.style.height = window.innerHeight + 'px';
+				
+				// El contexto ya existe, solo necesitamos re-escalar
+				if (STATE.ctx) {
+					STATE.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+					STATE.ctx.scale(dpr, dpr);
+				}
+			}
+		}
+
+		// ============================================
+		// LOOP DE ANIMACIÓN
+		// ============================================
+
+		function startAnimation() {
+			if (STATE.isRunning) return;
+			STATE.isRunning = true;
+			STATE.lastFrameTime = Date.now();
+			animate();
+		}
+
+		function stopAnimation() {
+			STATE.isRunning = false;
+			if (STATE.animationId) {
+				cancelAnimationFrame(STATE.animationId);
+				STATE.animationId = null;
+			}
+		}
+
+		function animate() {
+			if (!STATE.isRunning || STATE.isPaused) return;
+			
+			const now = Date.now();
+			const deltaTime = now - STATE.lastFrameTime;
+			STATE.lastFrameTime = now;
+			
+			// Calcular FPS
+			STATE.frameCount++;
+			if (now - STATE.lastFPSCheck >= 1000) {
+				STATE.fps = STATE.frameCount;
+				STATE.frameCount = 0;
+				STATE.lastFPSCheck = now;
+			}
+			
+			// Calcular tiempo en el ciclo
+			const elapsed = now - STATE.startTime;
+			const cycleProgress = (elapsed % CONFIG.cycleDuration) / CONFIG.cycleDuration;
+			STATE.currentColorPhase = cycleProgress;
+			
+			// Limpiar canvas
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+			STATE.ctx.fillStyle = 'rgba(10, 14, 39, 0.3)';
+			STATE.ctx.fillRect(0, 0, width, height);
+			
+			// Actualizar y dibujar partículas
+			STATE.particles.forEach(particle => {
+				particle.update(STATE.canvas, elapsed, STATE.currentColorPhase);
+				particle.draw(STATE.ctx, elapsed);
+			});
+			
+			// Dibujar conexiones
+			drawConnections(elapsed);
+			
+			// Actualizar indicador de progreso
+			updateProgressIndicator(cycleProgress);
+			
+			STATE.animationId = requestAnimationFrame(animate);
+		}
+
+		function drawConnections(time) {
+			const maxDistance = CONFIG.connectionDistance;
+			
+			for (let i = 0; i < STATE.particles.length; i++) {
+				for (let j = i + 1; j < STATE.particles.length; j++) {
+					const p1 = STATE.particles[i];
+					const p2 = STATE.particles[j];
+					
+					const dx = p1.x - p2.x;
+					const dy = p1.y - p2.y;
+					const distance = Math.sqrt(dx * dx + dy * dy);
+					
+					if (distance < maxDistance) {
+						const opacity = (1 - distance / maxDistance) * 0.3;
+						
+						// Color promedio entre las dos partículas
+						const c1 = CONFIG.colors[p1.colorIndex];
+						const c2 = CONFIG.colors[p2.colorIndex];
+						const r = Math.floor((c1.r + c2.r) / 2);
+						const g = Math.floor((c1.g + c2.g) / 2);
+						const b = Math.floor((c1.b + c2.b) / 2);
+						
+						// Efecto de profundidad
+						const avgDepth = (p1.depth + p2.depth) / 2;
+						
+						STATE.ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${opacity * avgDepth})`;
+						STATE.ctx.lineWidth = 0.5;
+						STATE.ctx.beginPath();
+						STATE.ctx.moveTo(p1.x, p1.y);
+						STATE.ctx.lineTo(p2.x, p2.y);
+						STATE.ctx.stroke();
+					}
+				}
+			}
+		}
+
+		function drawInitialFrame() {
+			// Renderizar el primer frame inmediatamente para evitar pantalla negra
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+			
+			STATE.ctx.fillStyle = 'rgba(10, 14, 39, 1)';
+			STATE.ctx.fillRect(0, 0, width, height);
+			
+			STATE.particles.forEach(particle => {
+				particle.draw(STATE.ctx, 0);
+			});
+			
+			drawConnections(0);
+		}
+
+		function drawStaticFrame() {
+			// Para usuarios con preferencia de movimiento reducido
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+			
+			STATE.ctx.fillStyle = '#0a0e27';
+			STATE.ctx.fillRect(0, 0, width, height);
+			
+			STATE.particles.forEach(particle => {
+				particle.draw(STATE.ctx, 0);
+			});
+			
+			drawConnections(0);
+		}
+
+		// ============================================
+		// INDICADOR DE PROGRESO
+		// ============================================
+
+		function updateProgressIndicator(progress) {
+			const circle = document.getElementById('progress-circle');
+			const circumference = 113.097; // 2 * π * r (r=18)
+			const offset = circumference - (progress * circumference);
+			circle.style.strokeDashoffset = offset;
+		}
+
+		// ============================================
+		// EVENT HANDLERS
+		// ============================================
+
+		function handleResize() {
+			resizeCanvas();
+			
+			// Ajustar número de partículas según dispositivo
+			const newCount = window.innerWidth < 768 ? 80 : 150;
+			if (newCount !== STATE.particles.length && !STATE.prefersReducedMotion) {
+				createParticles();
+			}
+			
+			// Reposicionar partículas para evitar que queden fuera de la pantalla
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+			
+			STATE.particles.forEach(p => {
+				if (p.x > width) p.x = width * Math.random();
+				if (p.y > height) p.y = height * Math.random();
+			});
+		}
+
+		function handleVisibilityChange() {
+			if (document.hidden) {
+				stopAnimation();
+			} else if (!STATE.isPaused && !STATE.prefersReducedMotion) {
+				startAnimation();
+			}
+		}
+
+		function toggleAnimation() {
+			STATE.isPaused = !STATE.isPaused;
+			
+			const pauseIcon = document.getElementById('pause-icon');
+			const pauseIcon2 = document.getElementById('pause-icon-2');
+			const playIcon = document.getElementById('play-icon');
+			
+			if (STATE.isPaused) {
+				pauseIcon.style.display = 'none';
+				pauseIcon2.style.display = 'none';
+				playIcon.style.display = 'block';
+				stopAnimation();
+			} else {
+				pauseIcon.style.display = 'block';
+				pauseIcon2.style.display = 'block';
+				playIcon.style.display = 'none';
+				startAnimation();
+			}
+		}
+
+		// ============================================
+		// OPTIMIZACIÓN DE RENDIMIENTO
+		// ============================================
+
+		function checkPerformance() {
+			if (STATE.fps < CONFIG.minFPS) {
+				// Reducir número de partículas si el rendimiento es bajo
+				if (STATE.particles.length > 50) {
+					STATE.particles.length = Math.floor(STATE.particles.length * 0.8);
+					console.log(`Performance optimization: Reduced particles to ${STATE.particles.length}`);
+				}
+			}
+		}
+
+		function debounce(func, wait) {
+			let timeout;
+			return function executedFunction(...args) {
+				const later = () => {
+					clearTimeout(timeout);
+					func(...args);
+				};
+				clearTimeout(timeout);
+				timeout = setTimeout(later, wait);
+			};
+		}
+
+		// ============================================
+		// INICIAR APLICACIÓN
+		// ============================================
+
+		// Esperar a que el DOM esté listo
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', init);
+		} else {
+			init();
+		}
+
+		setTimeout(() => {
+			toggleAnimation();
+		}, 1000);
+		
+		setTimeout(() => {
+			toggleAnimation();
+		}, 1000);
+
+		// Manejo de errores global
+		window.addEventListener('error', (e) => {
+			console.error('Animation error:', e.error);
+			// Continuar con versión degradada
+			if (STATE.isRunning) {
+				stopAnimation();
+				drawStaticFrame();
+			}
+		});
+
+
+	</script>
+</body>
+</html>
+
